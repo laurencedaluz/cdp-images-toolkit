@@ -14,6 +14,8 @@ https://github.com/hortonworks/cloudbreak-images
 This script reads properties from the CDP Production Image Catalog:
 https://cloudbreak-imagecatalog.s3.amazonaws.com/v3-prod-cb-image-catalog.json
 
+Note: this script will only display the output variables in the console, but will not execute the commands to set the variables. 
+
 Available options:
 
 -h, --help      Print this help and exit
@@ -21,7 +23,7 @@ Available options:
 -i, --image-uuid      Image uuid (from the CDP Image Catalog)
 -u, --username     Paywall username for cloudera
 -p, --password     Paywall password for cloudera
--f, --freeipa-image	Flag to indicate a freeipa image is required (default is CDP Runtime Image)
+-f, --freeipa-image Optional flag to indicate a freeipa image is required (default is CDP Runtime Image)
 EOF
   exit
 }
@@ -81,19 +83,19 @@ parse_params() {
   # check required params and arguments
   if [[ ${freeipa} -eq 1 ]]
   then
-    msg "${RED}Freeipa flag is set, ignoring all input parameters${NOFORMAT}"
+    msg "${BLUE}Freeipa flag is set, ignoring all input parameters${NOFORMAT}"
   else
     [[ -z "${uuid-}" ]] && die "Missing required parameter: --image-uuid"
     [[ -z "${p_user-}" ]] && die "Missing required parameter: --username"
     [[ -z "${p_pass-}" ]] && die "Missing required parameter: --password"
     
-    msg "${RED}Script input parameters:${NOFORMAT}"
+    msg "${BLUE}Script input parameters:${NOFORMAT}"
     msg "- image-uuid: ${uuid}"
     msg "- username: ${p_user}"
     msg "- password: ${p_pass}"
   fi
 
-  msg "${RED}-----------------------${NOFORMAT}"
+  msg "${BLUE}-----------------------${NOFORMAT}"
   return 0
 }
 
@@ -121,8 +123,8 @@ else
   # Add cloudera paywall credentials into all archive.cloudera.com URLs
   image=$(echo $image | sed "s,https://archive.cloudera.com,https://$p_user\:$p_pass\@archive.cloudera.com,g")
 
-  msg "${RED}-----------------------${NOFORMAT}"
-  msg "${RED}# Environment variables for make build-azure-redhat7${NOFORMAT}"
+  msg "${BLUE}-----------------------${NOFORMAT}"
+  msg "${BLUE}# Environment variables for make build-azure-redhat7${NOFORMAT}"
 
   ## Output required variables
 
@@ -171,7 +173,7 @@ else
   # echo "export STACK_VERSION=$(jq -r '."package-versions"."stack"' <<< $image)"
 
   # Pre warm packages
-  echo "## Pre warm packages"
+  msg "${BLUE}## Pre warm packages${NOFORMAT}"
   echo "export PRE_WARM_CSD='$(jq -c '."pre_warm_csd"' <<< $image | sed 's/"/\\\"/g')'"
   echo "export PRE_WARM_PARCELS='$(jq -c '."pre_warm_parcels"' <<< $image | sed 's/"/\\\"/g')'"
 
@@ -186,5 +188,8 @@ else
   echo "export ARM_TENANT_ID="
   echo "export ARM_GROUP_NAME="
   echo "export ARM_STORAGE_ACCOUNT="
+  echo ""
+
+  msg "OUTPUT COMPLETE: note that the variables here have been displayed in the console only, and have not been set."
 
 fi
