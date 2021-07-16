@@ -173,12 +173,12 @@ else
   # echo "export STACK_VERSION=$(jq -r '."package-versions"."stack"' <<< $image)"
 
   # Pre warm packages
-  msg "${BLUE}## Pre warm packages${NOFORMAT}"
+  echo "## Pre warm packages"
   echo "export PRE_WARM_CSD='$(jq -c '."pre_warm_csd"' <<< $image | sed 's/"/\\\"/g')'"
   echo "export PRE_WARM_PARCELS='$(jq -c '."pre_warm_parcels"' <<< $image | sed 's/"/\\\"/g')'"
 
   echo ""
-  echo "## Azure parameters to be updated by user:"
+  msg "${BLUE}## Azure parameters to be updated by user:${NOFORMAT}"
   echo "export CLOUD_PROVIDER=Azure"
   echo "export ARM_BUILD_REGION="
   echo "export AZURE_BUILD_STORAGE_ACCOUNT="
@@ -190,6 +190,6 @@ else
   echo "export ARM_STORAGE_ACCOUNT="
   echo ""
 
-  msg "OUTPUT COMPLETE: note that the variables here have been displayed in the console only, and have not been set."
+  msg "${BLUE}OUTPUT COMPLETE: note that the variables here have been displayed in the console only, and have not been set.${NOFORMAT}"
 
 fi
