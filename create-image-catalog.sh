@@ -6,7 +6,7 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 usage() {
   cat << EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] -m mode 
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v]
 
 This is a helper script used to generate a CDP Image Catalog (JSON file definition) after running a custom image build.
 To use this script, copy this script into the base directory of the image build repo and run it after completing an image build:
@@ -20,7 +20,6 @@ Available options:
 
 -h, --help      Print this help and exit
 -v, --verbose   Print script debug info
--f, --freeipa-image Optional flag to indicate a freeipa image is required (default is CDP Runtime Image)
 EOF
   exit
 }
