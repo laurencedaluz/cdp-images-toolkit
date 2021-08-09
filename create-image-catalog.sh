@@ -44,12 +44,6 @@ die() {
 }
 
 parse_params() {
-  # default values of variables set from params
-  uuid=''
-  p_user=''
-  p_pass=''
-  freeipa=0
-
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
@@ -74,6 +68,13 @@ parse_params "$@"
 # Get latest build output properties from generated JSON file
 #id_name=$(ls *_manifest.json | grep -q -E '_[0-9]*_manifest.json' && ls -t *_manifest.json | grep ${image_type} | head -n1 | sed 's/_[0-9]*_manifest.json//' || ls *_manifest.json | sed 's/_manifest.json//' | sort)
 id_name=$(ls *_manifest.json | grep -q -E '_[0-9]*_manifest.json' && ls -t *_manifest.json | head -n1 | sed 's/_[0-9]*_manifest.json//' || ls *_manifest.json | sed 's/_manifest.json//' | sort)
+
+# Check if this is a freeipa image
+freeipa=0
+if [[ $id_name == *"freeipa"* ]]; then
+  freeipa=1
+fi
+
 build_output_file=$(ls | grep $id_name | grep -v '_manifest')
 build_json=$(cat $build_output_file | jq)
 
@@ -107,6 +108,73 @@ v_pre_warm_parcels=$(jq -r '."pre_warm_parcels"' <<< $build_json)
 v_pre_warm_csd=$(jq -r '."pre_warm_csd"' <<< $build_json)
 
 
+
+if [[ ${freeipa} -eq 1 ]]
+then
+
+# Get cloudbreak versions from the CDP production freeipa image catalog
+cb_versions=$(curl --progress-bar https://cloudbreak-imagecatalog.s3.amazonaws.com/v3-prod-freeipa-image-catalog.json | jq '.versions.freeipa[].versions')
+
+### GENERATE FREEIPA CATALOG ###
+## FreeIPA Image Properties
+json_image_object=$(cat <<EOF
+[
+  {
+    "created": "${v_created}",
+    "date": "${v_date}",
+    "description": "${v_description}",
+    "images": {
+      "azure": ${v_images}
+    },
+    "os": "${v_os}",
+    "os_type": "${v_os_type}",
+    "uuid": "${v_uuid}",
+    "package-versions": ${v_package_versions}
+  }
+]
+EOF
+)
+
+## UUID objects
+v_uuid_images=$(cat <<EOF
+["$v_uuid"]
+EOF
+)
+
+## Final FreeIPA Image Catalog
+json_freeipa_template=$(cat <<EOF
+{
+  "images": {
+    "freeipa-images": ${json_image_object}
+  },
+  "versions": {
+    "freeipa": [
+      {
+        "images": ${v_uuid_images},
+        "defaults": [],
+        "versions": ${cb_versions}
+      }
+    ]
+  }
+}
+EOF
+)
+
+file_name="image_catalog_freeipa.json"
+msg "${BLUE}Image Catalog Generated:${NOFORMAT}"
+msg "${BLUE}-----------------${NOFORMAT}"
+echo $json_freeipa_template | jq
+echo ""
+msg "${BLUE}-----------------${NOFORMAT}"
+msg "${BLUE}Writing to file:${NOFORMAT} $file_name"
+echo ${json_freeipa_template} | jq > $file_name
+  
+else
+
+# Get cloudbreak versions from the CDP production freeipa image catalog
+cb_versions=$(curl --progress-bar https://cloudbreak-imagecatalog.s3.amazonaws.com/v3-prod-cb-image-catalog.json | jq '.versions.cloudbreak[].versions')
+
+### GENERATE RUNTIME CATALOG ###
 ## Runtime Image Properties
 json_image_object=$(cat <<EOF
 [
@@ -162,9 +230,7 @@ json_runtime_template=$(cat <<EOF
       {
         "images": ${v_uuid_images},
         "defaults": ${v_uuid_images},
-        "versions": [
-          "2.43.0-b51"
-        ]
+        "versions": ${cb_versions}
       }
     ]
   }
@@ -172,7 +238,7 @@ json_runtime_template=$(cat <<EOF
 EOF
 )
 
-file_name="image_catalog.json"
+file_name="image_catalog_runtime.json"
 msg "${BLUE}Image Catalog Generated:${NOFORMAT}"
 msg "${BLUE}-----------------${NOFORMAT}"
 echo $json_runtime_template | jq
@@ -181,3 +247,4 @@ msg "${BLUE}-----------------${NOFORMAT}"
 msg "${BLUE}Writing to file:${NOFORMAT} $file_name"
 echo ${json_runtime_template} | jq > $file_name
 
+fi
