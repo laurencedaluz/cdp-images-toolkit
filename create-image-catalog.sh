@@ -80,7 +80,9 @@ build_json=$(cat $build_output_file | jq)
 
 # Remove paywall credentials if they exist
 search_filter=$(jq -r '."cdh_baseurl"' <<< $build_json | sed "s,https://\(.*\)archive.cloudera.com.*,\1,g")
-build_json=$(echo $build_json | sed "s,$search_filter,,g")
+if [ -n "$search_filter" ]; then
+  build_json=$(echo $build_json | sed "s,$search_filter,,g")
+fi
 
 # Get list of image paths and regions (& convert to JSON format)
 images_in_regions=$(cat ./scripts/images_in_regions | cut -d'=' -f2-3 | jq -R -s '[split("\n")[:-1][] | split("=") | {(.[0]): .[1]}]  | add')
