@@ -144,14 +144,16 @@ then
   ## FreeIPA Image ##
 
   msg "${BLUE}## Setting FreeIPA environment variables:${NOFORMAT}"
-  export CLOUD_PROVIDER=Azure
   export CUSTOM_IMAGE_TYPE=freeipa
   export IMAGE_BURNING_TYPE=freeipa
   export IMAGE_NAME=freeipa-cdh--$(date +%s)
+  export ENABLE_POSTPROCESSORS=true  # hardcoded value
+
   msg "Variable set: $CLOUD_PROVIDER"
   msg "Variable set: $CUSTOM_IMAGE_TYPE"
   msg "Variable set: $IMAGE_BURNING_TYPE"
   msg "Variable set: $IMAGE_NAME"
+  msg "Variable set: $ENABLE_POSTPROCESSORS"
 
   msg "${BLUE}## Running freeipa image build${NOFORMAT}"
   make build-azure-redhat7
