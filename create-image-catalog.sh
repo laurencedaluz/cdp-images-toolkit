@@ -99,7 +99,7 @@ v_package_versions=$(jq -r '."package_versions"' <<< $build_json)
 
 v_cdh_baseurl=$(jq -r '."cdh_baseurl"' <<< $build_json)
 v_cdh_repoid=$(jq -r '."cdh_repoid"' <<< $build_json)
-v_cdh_repository_version=$(jq -r '."cdh_repository_version"' <<< $build_json)
+v_cdh_repository_version=$(jq -r '."cdh_version"' <<< $build_json)-$(jq -r '."cdh_repository_version"' <<< $build_json)
 v_cdh_version=$(jq -r '."cdh_version"' <<< $build_json)
 v_stack_build_number=$(jq -r '."stack_build_number"' <<< $build_json)
 
