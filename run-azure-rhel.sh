@@ -207,7 +207,7 @@ else
 
 
   # Get parcel name from stack repository
-  export PARCELS_NAME=$(curl -s $(jq -r '."stack-details".repo.stack.redhat7' <<< $image) | grep .parcel\" | cut -d'"' -f 2)
+  export PARCELS_NAME=$(curl -s $(jq -r '."stack-details".repo.stack.redhat7' <<< $image) | grep el7.parcel\" | cut -d'"' -f 2)
   msg "Variable set: PARCELS_NAME=$PARCELS_NAME"
 
   # Repo
