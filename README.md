@@ -70,3 +70,47 @@ Available options:
 -p, --password     Paywall password for cloudera
 -f, --freeipa-image Optional flag to indicate a freeipa image is required (default is CDP Runtime Image)
 ```
+
+## run-aws-rhel.sh
+The `run-aws-rhel.sh` script is a wrapper for the CDP image building process (note: this script is currently tailored for AWS RHEL images). This script inputs an Image UUID (referencing an existing Cloudera Production CentOS image) as well as Cloudera subscription credentials, and will automatically obtain and set a list of required input parameters from the CDP Production Image Catalog, that can be used for a RHEL build.
+
+To use this script, clone the following repository and then copy this script into the base directory:
+https://github.com/hortonworks/cloudbreak-images
+
+
+To run the script there are two ways : 
+
+1. Run with wrapper script with all the values updated in it, Update the appropriate values with "<REPLACE_ME>" and execute the aws-wrapper.sh
+
+```
+export AWS_ACCESS_KEY_ID=<REPLACE_ME>
+export AWS_SECRET_ACCESS_KEY=<REPLACE_ME>
+
+export JUMPGATE_AGENT_RPM_URL="https://archive.cloudera.com/ccm/2.0.7/jumpgate-agent.rpm"
+export METERING_AGENT_RPM_URL="https://cloudera-service-delivery-cache.s3.amazonaws.com/thunderhead-metering-heartbeat-application/clients/thunderhead-metering-heartbeat-application-0.1-SNAPSHOT.x86_64.rpm"
+export FREEIPA_HEALTH_AGENT_RPM_URL="https://cloudera-service-delivery-cache.s3.amazonaws.com/freeipa-health-agent/packages/freeipa-health-agent-0.1-20210517150203gitab017e0.x86_64.rpm"
+export FREEIPA_PLUGIN_RPM_URL="https://cloudera-service-delivery-cache.s3.amazonaws.com/cdp-hashed-pwd/workloads/cdp-hashed-pwd-1.0-20200319002729gitc964030.x86_64.rpm"
+
+
+sh run-aws-rhel.sh --image-uuid <REPLACE_ME> --username <REPLACE_ME> --password <REPLACE_ME> 
+```
+
+2. Export the environment variables before running the script :
+
+```
+export AWS_ACCESS_KEY_ID=AKIAT45...
+export AWS_SECRET_ACCESS_KEY=QsQVddAL36bBA...
+
+# Run the script with required parameters
+
+./run-aws-rhel.sh [-h] [-v] -i image_uuid -u paywall_username -p paywall_password
+
+Available options:
+
+-h, --help      Print this help and exit
+-v, --verbose   Print script debug info
+-i, --image-uuid      Image uuid (from the CDP Image Catalog)
+-u, --username     Paywall username for cloudera
+-p, --password     Paywall password for cloudera
+-f, --freeipa-image	Optional flag to indicate a freeipa image is required (default is CDP Runtime Image)
+```
